@@ -1,3 +1,6 @@
+import os
+os.environ["ANONYMIZED_TELEMETRY"] = "false"
+
 import asyncio
 import base64
 import json
@@ -14,6 +17,7 @@ from app.config import config
 from app.llm import LLM
 from app.tool.base import BaseTool, ToolResult
 from app.tool.web_search import WebSearch
+
 
 
 _BROWSER_DESCRIPTION = """\
