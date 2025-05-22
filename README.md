@@ -1,3 +1,11 @@
+This is my fork of OpenManus to experiment integrating with N8N, it currently can receive and delivery tasks via webhook and Telegram as well as ask for further instructions via webhook/telegram when needed. Just run with:
+
+python mcp_agent_server.py
+
+[![Support my work ❤️](https://img.shields.io/badge/Support%20my%20work%20❤️-orange?style=for-the-badge&logo=patreon&logoColor=white)](https://www.patreon.com/c/orobocigano)
+
+
+
 <p align="center">
   <img src="assets/logo.jpg" width="200"/>
 </p>

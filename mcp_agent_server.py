@@ -1,4 +1,6 @@
+from dotenv import load_dotenv
 import os
+load_dotenv()
 os.environ["ANONYMIZED_TELEMETRY"] = "false"
 
 import asyncio
@@ -10,17 +12,19 @@ from app.agent.manus import Manus
 from app.logger import logger
 import socket
 
-HOST = "0.0.0.0"
-PORT = 8000
+host_ip = os.getenv("HOST")
+host_port = int(os.getenv("PORT"))
+dns_check = os.getenv("DNS_CHECK")
 
 #https://gofastmcp.com/servers/fastmcp
 #https://github.com/jlowin/fastmcp
 mcp = FastMCP("Manus")
 
 @mcp.tool()
-async def ask_manus(prompt: str) -> str:
+async def super_agent_tool(prompt: str) -> str:
     """
-    Ask the super researcher Manus Agent to do web research and tasks.
+    Ask the super researcher Manus Agent to do web research and various hard tasks,
+    including asking humans for more instructions.
     """
 
     logger.info("Instantiating Manus Agent")
@@ -67,18 +71,18 @@ if __name__ == "__main__":
     def get_local_ip():
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.connect(("8.8.8.8", 80))
+            s.connect((dns_check, 80))
             ip = s.getsockname()[0]
             s.close()
             return ip
         except:
             return "127.0.0.1"
 
-    print(f"\033[32m########################\033[0m http://{get_local_ip()}:{PORT}/sse  \033[32m#####################\033[0m")
+    print(f"\033[32m########################\033[0m http://{get_local_ip()}:{host_port}/sse  \033[32m#####################\033[0m")
     print("\033[32m###########################################################################\033[0m")
 
     try:
-        uvicorn.run(sse_app, host=HOST, port=PORT)
+        uvicorn.run(sse_app, host=host_ip, port=host_port)
     except KeyboardInterrupt:
         print("\n\033[31mGraceful shutdown requested. Exiting...\033[0m")
         uvicorn.stop()

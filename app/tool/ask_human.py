@@ -1,11 +1,17 @@
+from dotenv import load_dotenv
+import os
+load_dotenv()
 from app.tool import BaseTool
 import asyncio
-import os
 import httpx
 import json
 from app.logger import logger
 from fastapi import FastAPI, Request
 import uvicorn
+
+host_ip = os.getenv("HOST")
+host_port = int(os.getenv("PORT"))
+callback_port = int(os.getenv("CALLBACK_PORT"))
 
 class AskHuman(BaseTool):
     """Add a tool to ask human for help."""
@@ -28,7 +34,7 @@ class AskHuman(BaseTool):
         logger.warning(inquire.strip())
         logger.warning("------------------------------------------")
 
-        webhook_url = "http://vm.local:30002/webhook/human"
+        webhook_url = os.getenv("WEBHOOK_URL")
         response = None
 
         async with httpx.AsyncClient() as client:
@@ -43,14 +49,14 @@ class AskHuman(BaseTool):
             @app.post("/")
             async def callback(request: Request):
                 data = await request.json()
-                logger.success("✅ received: ", data)
+                logger.success("✅ Received Answer! ", data)
                 nonlocal response
                 response = data.get("msg").strip()
                 got_response.set()
 
                 return {}
 
-            config = uvicorn.Config(app, host="0.0.0.0", port=8001, log_level="error")
+            config = uvicorn.Config(app, host=host_ip, port=callback_port, log_level="error")
             server = uvicorn.Server(config)
 
             # start the HTTP server in the background
@@ -58,7 +64,7 @@ class AskHuman(BaseTool):
 
             # loop until the callback flips our event
             while not got_response.is_set():
-                logger.warning("Waiting for answer")
+                logger.warning("Waiting Human Help...")
                 await asyncio.sleep(30)
 
             # once we got it, shut down the server
